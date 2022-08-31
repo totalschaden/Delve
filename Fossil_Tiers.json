@@ -1,0 +1,37 @@
+{
+
+    "t1":[
+        "10c to exalts",
+        "Fractured",
+        "Bloodstained",
+        "Faceted",
+        "Hollow",
+        "Glyphic",
+        "Serrated",
+        "Sanctified",
+        "Perfect"
+    ],
+    "t2":[
+        "less than 10c",
+        "Tangled",
+        "Pristine",
+        "Corroded",
+        "Gilded",
+        "Prismatic",
+        "Enchanted"
+    ],
+    "t3":[
+        "less than 2c",
+        "Dense",
+        "Metallic",
+        "Bound",
+        "Aetheric",
+        "Encrusted",
+        "Jagged",
+        "Scorched",
+        "Frigid",
+        "Aberrant",
+        "Lucent"
+    ]
+
+}
