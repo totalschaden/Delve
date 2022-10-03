@@ -130,7 +130,7 @@ namespace Delve
             _iconWisdomCurrency = GetAtlasTexture("WisdomCurrency");
         }
 
-        private MapIcon GetMapIcon(Entity e)
+        private MapIcon GetMapIcon(DelveEntity e)
         {
             if (e == null) return null;
 
@@ -143,7 +143,7 @@ namespace Delve
             }
             if (Settings.DelveChests)
             {
-                var chestIsOpened = e?.GetComponent<Chest>()?.IsOpened;
+                var chestIsOpened = e.IsOpened;
 
                 if (chestIsOpened == false)
                 {
