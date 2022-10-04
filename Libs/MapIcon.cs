@@ -1,4 +1,6 @@
 ﻿using System;
+using ExileCore;
+using ExileCore.PoEMemory.Elements;
 using ExileCore.Shared.AtlasHelper;
 using SharpDX;
 
@@ -9,6 +11,13 @@ namespace Delve.Libs
         public AtlasTexture Texture { get; set; }
         public Color Color { get; set; } = Color.White;
         public float Size { get; set; } = 13;
+        private const int TileToGridConversion = 23;
+        private const int TileToWorldConversion = 250;
+        public const float GridToWorldMultiplier = TileToWorldConversion / (float)TileToGridConversion;
+        internal static double _mapScale;
+        private const double CameraAngle = 38.7 * Math.PI / 180;
+        private static readonly float CameraAngleCos = (float)Math.Cos(CameraAngle);
+        private static readonly float CameraAngleSin = (float)Math.Sin(CameraAngle);
 
         public MapIcon()
         {
@@ -25,7 +34,11 @@ namespace Delve.Libs
             Texture = texture;
             Size = size;
         }
-
+        internal static Vector2 TranslateGridDeltaToMapDelta(Vector2 delta, float deltaZ)
+        {
+            deltaZ /= GridToWorldMultiplier; //z is normally "world" units, translate to grid
+            return (float)_mapScale * new Vector2((delta.X - delta.Y) * CameraAngleCos, (deltaZ - (delta.X + delta.Y)) * CameraAngleSin);
+        }
         public static Vector2 DeltaInWorldToMinimapDelta(Vector2? delta, double diag, float scale, float deltaZ = 0)
         {
             const float CAMERA_ANGLE = 38 * MathUtil.Pi / 180;

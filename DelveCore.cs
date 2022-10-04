@@ -39,13 +39,9 @@ namespace Delve
 
         public FossilTiers FossilList = new();
         public LargeMapData LargeMapInformation { get; set; }
-        private const int TileToGridConversion = 23;
-        private const int TileToWorldConversion = 250;
-        public const float GridToWorldMultiplier = TileToWorldConversion / (float)TileToGridConversion;
-        private double _mapScale;
-        private const double CameraAngle = 38.7 * Math.PI / 180;
-        private static readonly float CameraAngleCos = (float)Math.Cos(CameraAngle);
-        private static readonly float CameraAngleSin = (float)Math.Sin(CameraAngle);
+        
+        
+        
         private float updateCooldown = 250;
 
         public override bool Initialise()
@@ -122,6 +118,10 @@ namespace Delve
             updateCooldown = Helper.MoveTowards(updateCooldown, 0, Helper._deltaTime);
             if (updateCooldown == 0)
                 UpdateEntitys();
+            var map = GameController.Game.IngameState.IngameUi.Map;
+            var largeMap = map.LargeMap.AsObject<SubMap>();
+           MapIcon._mapScale = GameController.IngameState.Camera.Height / 677f * largeMap.Zoom;
+           
             // SubterraneanChart MineMap = GameController.Game.IngameState.IngameUi.MineMap;
             SubterraneanChart MineMap = GameController.Game.IngameState.IngameUi.DelveWindow;
             if (Settings.DelveMineMapConnections.Value) DrawMineMapConnections(MineMap);
@@ -216,11 +216,7 @@ namespace Delve
                 @Scale = @K / @Camera.Height * @Camera.Width * 3f / 4f / @MapWindow.LargeMapZoom;
             }
         }
-        private Vector2 TranslateGridDeltaToMapDelta(Vector2 delta, float deltaZ)
-        {
-            deltaZ /= GridToWorldMultiplier; //z is normally "world" units, translate to grid
-            return (float)_mapScale * new Vector2((delta.X - delta.Y) * CameraAngleCos, (deltaZ - (delta.X + delta.Y)) * CameraAngleSin);
-        }
+        
         
         /*
         private void DrawToLargeMiniMap(DelveEntity entity)
@@ -262,8 +258,9 @@ namespace Delve
         
         private void DrawToLargeMiniMap(DelveEntity entity)
         {
-            if (entity is not {IsOpened: false})
+            if (entity.IsOpened)
                 return;
+
 
             var icon = GetMapIcon(entity);
             if (icon == null)
@@ -271,15 +268,14 @@ namespace Delve
                 return;
             }
 
+            
             var iconZ = entity.RendererPos.Value.Z;
 
             try
             {
                 var point = LargeMapInformation.ScreenCenter
-                            + MapIcon.DeltaInWorldToMinimapDelta(entity.GridPos - LargeMapInformation.PlayerPos,
-                                LargeMapInformation.Diag, LargeMapInformation.Scale,
-                                ((float)iconZ - LargeMapInformation.PlayerPosZ) /
-                                (9f / LargeMapInformation.MapWindow.LargeMapZoom));
+                            + MapIcon.TranslateGridDeltaToMapDelta((Vector2)(entity.GridPos - LargeMapInformation.PlayerPos),
+                                ((float)iconZ - LargeMapInformation.PlayerPosZ));
 
                 var size = icon.Size * 2; // icon.SizeOfLargeIcon.GetValueOrDefault(icon.Size * 2);
                 // LogMessage($"{Name}: entity.Path - {entity.Path}");
@@ -337,7 +333,7 @@ namespace Delve
                     !entity.Path.StartsWith("Metadata/Terrain/Leagues/Delve/Objects/DelveWall") &&
                     !entity.Path.StartsWith("Metadata/Terrain/Leagues/Delve/Objects/DelveLight")) continue;
                 
-                var delveEntityToUpdate = DelveEntities.FirstOrDefault(x =>
+                var delveEntityToUpdate = DelveEntities.FirstOrDefault(x => x != null &&
                     x.GridPos == entity.GridPos);
                 if (delveEntityToUpdate == null)
                     continue;
@@ -357,12 +353,8 @@ namespace Delve
             if (!entity.Path.StartsWith("Metadata/Chests/DelveChests/") &&
                 !entity.Path.StartsWith("Metadata/Terrain/Leagues/Delve/Objects/DelveWall") &&
                 !entity.Path.StartsWith("Metadata/Terrain/Leagues/Delve/Objects/DelveLight")) return;
-            var isOpen = entity.GetComponent<Chest>()?.IsOpened;
-            if (isOpen == null)
-                return;
-            var rendererPos = entity.GetComponent<Render>()?.Pos;
-            if (rendererPos == null)
-                return;
+            var isOpen = entity.IsOpened;
+            var rendererPos = entity.GetComponent<Render>().Pos;
             var gridPos = entity.GridPos;
 
             DelveEntities.Add(new DelveEntity( entity.Pos, entity.Path, isOpen, rendererPos, gridPos, entity.IsAlive));
