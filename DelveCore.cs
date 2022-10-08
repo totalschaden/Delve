@@ -371,7 +371,7 @@ namespace Delve
 
         private void DrawMineMapConnections(SubterraneanChart MineMap)
         {
-            if (!MineMap.IsVisible)
+            if (!MineMap.IsVisible || !Settings.DrawPaths)
                 return;
 
             int width = 0;
@@ -386,12 +386,23 @@ namespace Delve
                 {
                     if (MineMapArea.Contains(block.GetClientRect().Center))
                     {
-                        foreach (var connection in block.Children)
+                        var connections = block.Children.Where(x => x is {IsVisible: false} && ((int)x.Width == 10 || (int)x.Width == 4)).ToArray();
+                        int i = 0;
+                        int count = connections.Count();
+                        var center = block.GetClientRect().Center;
+                        foreach (var connection in connections)
                         {
-                            width = (int)connection.Width;
-                            if ((width == 10 || width == 4))
-                                Graphics.DrawFrame(connection.GetClientRect(), Color.Yellow, 1);
+                            //Graphics.DrawFrame(connection.GetClientRect(), Color.Yellow, 1);
+                            int correctionOffset = 15;
+                            
+                            if (i < count)
+                            {
+                                Graphics.DrawLine(connection.GetClientRect().Center, center, 5, new Color(174, 120, 26, 200));
+                            }
+                            i++;
+                                    
                         }
+                            
                     }
                 }
             }

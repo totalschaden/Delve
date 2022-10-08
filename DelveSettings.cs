@@ -55,6 +55,8 @@ namespace Delve
 
         public ToggleNode DebugMode { get; set; } = new(false);
         public ToggleNode ShouldHideOnOpen { get; set; } = new(false);
+        
+        public ToggleNode DrawPaths { get; set; } = new(true);
         public HotkeyNode DebugHotkey { get; set; } = new(System.Windows.Forms.Keys.Menu);
         // Delve Map Grid
         public ToggleNode DelveGridMap { get; set; } = new(true);

@@ -115,6 +115,8 @@ namespace Delve
                 idPop++;
                 Settings.ShowRadiusPercentage.Value = ImGuiExtension.IntSlider($"Radius (%)##{idPop}", Settings.ShowRadiusPercentage);
                 idPop++;
+                Settings.DrawPaths.Value = ImGuiExtension.Checkbox($"Draw Path's###{idPop}", Settings.DrawPaths.Value);
+                idPop++;
                 ImGui.TreePop();
             }
             if (ImGui.TreeNode("Delve Map Grid"))
