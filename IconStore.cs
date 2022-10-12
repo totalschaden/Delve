@@ -6,7 +6,6 @@ using ExileCore.Shared.AtlasHelper;
 using Newtonsoft.Json;
 
 namespace DefaultNamespace;
-public record ChartFeature(string Id, string Name, string Description, string Image);
 
 [SuppressMessage("Interoperability", "CA1416:Plattformkompatibilität überprüfen")]
 public class IconStore

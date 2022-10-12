@@ -52,8 +52,8 @@ namespace Delve
             AtlasTextureInit();
             Input.RegisterKey(Settings.DebugHotkey);
             iconStore = new IconStore(CreateAtlas(
-                    Path.Join(DirectoryFullName, "Textures", "chart", "icons.json"),
-                    Path.Join(DirectoryFullName, "Textures", "chart", "icons.png")),
+                    Path.Join(DirectoryFullName, "textures", "chart", "icons.json"),
+                    Path.Join(DirectoryFullName, "textures", "chart", "icons.png")),
                 Path.Join(DirectoryFullName, "chart_icons.json"));
 
             buildDate = new DateTime(2000, 1, 1).AddDays(version.Build).AddSeconds(version.Revision * 2);
@@ -414,6 +414,7 @@ namespace Delve
                             _ => Color.Yellow
                         }
                         : Color.Yellow;
+                    
                         
                     if (Settings.DrawStraightPaths)
                     {
@@ -455,6 +456,7 @@ namespace Delve
                                     
                         }
                     }
+                    
                     if (!block.IsCellVisible() && block.HasEncounter())
                     {
                         if (!MineMapArea.Contains(blockCenter))
@@ -466,6 +468,7 @@ namespace Delve
                         iconRect.Inflate(-iconRect.Width / 7, -iconRect.Height / 7);
                         Graphics.DrawImage(icon, iconRect);
                     }
+                    
 
                 }
             }
