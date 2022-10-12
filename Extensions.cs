@@ -3,8 +3,6 @@ using ExileCore.PoEMemory.Elements;
 using ExileCore.Shared.Helpers;
 using GameOffsets.Native;
 using SharpDX;
-namespace Delve;
-
 [SuppressMessage("Interoperability", "CA1416:Plattformkompatibilität überprüfen")]
 public static class Extensions
 {

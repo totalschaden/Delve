@@ -117,6 +117,12 @@ namespace Delve
                 idPop++;
                 Settings.DrawPaths.Value = ImGuiExtension.Checkbox($"Draw Path's###{idPop}", Settings.DrawPaths.Value);
                 idPop++;
+                Settings.OnlyShowHiddenPaths.Value = ImGuiExtension.Checkbox($"Draw only Hidden Path's###{idPop}", Settings.OnlyShowHiddenPaths.Value);
+                idPop++;
+                Settings.ColoredPaths.Value = ImGuiExtension.Checkbox($"Draw Path's with Biom Color###{idPop}", Settings.ColoredPaths.Value);
+                idPop++;
+                Settings.DrawStraightPaths.Value = ImGuiExtension.Checkbox($"Draw Straight Path's###{idPop}", Settings.DrawStraightPaths.Value);
+                idPop++;
                 ImGui.TreePop();
             }
             if (ImGui.TreeNode("Delve Map Grid"))

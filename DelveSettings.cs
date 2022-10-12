@@ -50,13 +50,19 @@ namespace Delve
         public ColorNode DelvePathwayChestColor { get; set; } = new ColorBGRA(0, 131, 0, 255);
 
         // Delve Mine Map Connections
-        public ToggleNode DelveMineMapConnections { get; set; } = new(true);
-        public RangeNode<int> ShowRadiusPercentage { get; set; } = new(80, 0, 100);
+        public ToggleNode DelveMineMapConnections { get; set; } = new (true);
+        public RangeNode<int> ShowRadiusPercentage { get; set; } = new (80, 0, 100);
 
-        public ToggleNode DebugMode { get; set; } = new(false);
-        public ToggleNode ShouldHideOnOpen { get; set; } = new(false);
+        public ToggleNode DebugMode { get; set; } = new (false);
+        public ToggleNode ShouldHideOnOpen { get; set; } = new (false);
         
-        public ToggleNode DrawPaths { get; set; } = new(true);
+        public ToggleNode DrawPaths { get; set; } = new (true);
+
+        public ToggleNode ColoredPaths { get; set; } = new(true);
+
+        public ToggleNode OnlyShowHiddenPaths { get; set; } = new(false);
+
+        public ToggleNode DrawStraightPaths { get; set; } = new(true);
         public HotkeyNode DebugHotkey { get; set; } = new(System.Windows.Forms.Keys.Menu);
         // Delve Map Grid
         public ToggleNode DelveGridMap { get; set; } = new(true);

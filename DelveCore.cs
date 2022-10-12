@@ -41,6 +41,7 @@ namespace Delve
 
         public FossilTiers FossilList = new();
         public LargeMapData LargeMapInformation { get; set; }
+        private IconStore iconStore;
         
         
         
@@ -50,6 +51,10 @@ namespace Delve
         {
             AtlasTextureInit();
             Input.RegisterKey(Settings.DebugHotkey);
+            iconStore = new IconStore(CreateAtlas(
+                    Path.Join(DirectoryFullName, "Textures", "chart", "icons.json"),
+                    Path.Join(DirectoryFullName, "Textures", "chart", "icons.png")),
+                Path.Join(DirectoryFullName, "chart_icons.json"));
 
             buildDate = new DateTime(2000, 1, 1).AddDays(version.Build).AddSeconds(version.Revision * 2);
 
@@ -125,11 +130,11 @@ namespace Delve
            MapIcon._mapScale = GameController.IngameState.Camera.Height / 677f * largeMap.Zoom;
            
             // SubterraneanChart MineMap = GameController.Game.IngameState.IngameUi.MineMap;
-            SubterraneanChart MineMap = GameController.Game.IngameState.IngameUi.DelveWindow;
-            if (Settings.DelveMineMapConnections.Value) DrawMineMapConnections(MineMap);
-            if (Settings.DelveGridMap.Value) DelveMapNodes(MineMap);
-            if (!MineMap.IsVisible) RenderMapImages();
-            var scale = MineMap.Children[0].Children[0].Children[2].Scale;
+            SubterraneanChart mineMap = GameController.Game.IngameState.IngameUi.DelveWindow;
+            if (Settings.DelveMineMapConnections.Value) DrawMineMapConnections(mineMap);
+            if (Settings.DelveGridMap.Value) DelveMapNodes(mineMap);
+            if (!mineMap.IsVisible) RenderMapImages();
+            var scale = mineMap.Children[0].Children[0].Children[2].Scale;
             CurrentDelveMapZoom = scale;
             if (Settings.DebugHotkey.PressedOnce())
                 Settings.DebugMode.Value = !Settings.DebugMode.Value;
@@ -380,30 +385,88 @@ namespace Delve
             float reducedWidth = ((100 - Settings.ShowRadiusPercentage.Value) * MineMapArea.Width)/200;
             float reduceHeight = ((100 - Settings.ShowRadiusPercentage.Value) * MineMapArea.Height)/200;
             MineMapArea.Inflate(0 - reducedWidth, 0 - reduceHeight);
-            foreach (var zone in MineMap.GridElement.Children)
+            foreach (var zone in MineMap.GridElement.Cells.Where(cell => cell.GetClientRect().Intersects(MineMapArea)))
             {
-                foreach (var block in zone.Children)
+                foreach (var block in zone.Cells.Where(x => x.Type != ""))
                 {
-                    if (MineMapArea.Contains(block.GetClientRect().Center))
+                    var blockRect = block.GetClientRect();
+                    var blockCenter = blockRect.Center;
+                    
+                    if ((!block.PathIsHidden() && block.IsCellVisible() && Settings.OnlyShowHiddenPaths) || !MineMapArea.Intersects(blockRect))
+                        continue;
+                    
+                    var connections = block.Children.Where(x => x is {IsVisible: false} && ((int)x.Width == 10 || (int)x.Width == 4)).ToArray();
+                    int i = 0;
+                    int count = connections.Count();
+
+                    var biomeColor = Settings.ColoredPaths
+                        ? block.BiomeName() switch
+                        {
+                            "AbyssalDepths" => Color.DarkGreen,
+                            "AbyssalCity" => Color.DarkGreen,
+                            "PetrifiedForest" => Color.SandyBrown,
+                            "MagmaFissure" => Color.DarkRed,
+                            "FungalCaverns" => Color.DarkViolet,
+                            "FrozenHollow" => Color.DarkBlue,
+                            "PrimevalRuins" => Color.Blue,
+                            "VaalOutpost" => Color.Orange,
+                            "SulphurVents" => Color.Brown,
+                            _ => Color.Yellow
+                        }
+                        : Color.Yellow;
+                        
+                    if (Settings.DrawStraightPaths)
                     {
-                        var connections = block.Children.Where(x => x is {IsVisible: false} && ((int)x.Width == 10 || (int)x.Width == 4)).ToArray();
-                        int i = 0;
-                        int count = connections.Count();
-                        var center = block.GetClientRect().Center;
+                        var points = new List<Vector2>();
+                        if (block.Children.Any(x => x.Width == 10 && x.Y != 0))
+                            points.Add(blockRect.BottomMiddle());
+                        if (block.Children.Any(x => x.Width == 10 && x.Y == 0))
+                            points.Add(blockRect.TopMiddle());
+                        if (block.Children.Any(x => x.Width == 4 && x.X == 0))
+                            points.Add(blockRect.LeftMiddle());
+                        if (block.Children.Any(x => x.Width == 4 && x.X != 0))
+                            points.Add(blockRect.RightMiddle());
+                        
+                        foreach (var connection in points)
+                        {
+                            Graphics.DrawLine(blockCenter, connection, 4, biomeColor);
+                        }
+                    }
+                    else
+                    {
                         foreach (var connection in connections)
                         {
                             //Graphics.DrawFrame(connection.GetClientRect(), Color.Yellow, 1);
                             int correctionOffset = 15;
+                            var connectionCenter = connection.GetClientRect().Center;
+                            /*
+                            //This need a Zoomlevel Based Value.
+                            if (connection.Width == 10)
+                                connectionCenter.X += correctionOffset;
+                            if (connection.Width == 4)
+                                connectionCenter.Y += correctionOffset;
+                            */
                             
                             if (i < count)
                             {
-                                Graphics.DrawLine(connection.GetClientRect().Center, center, 5, new Color(174, 120, 26, 200));
+                                Graphics.DrawLine(connectionCenter, blockCenter, 4, biomeColor);
                             }
                             i++;
                                     
                         }
-                            
                     }
+                    if (!block.IsCellVisible() && block.HasEncounter())
+                    {
+                        if (!MineMapArea.Contains(blockCenter))
+                            continue;
+                        var icon = iconStore.GetByFeatureId(block.Type());
+                        if (icon == null)
+                            continue;
+                        var iconRect = blockRect;
+                        iconRect.Inflate(-iconRect.Width / 7, -iconRect.Height / 7);
+                        Graphics.DrawImage(icon, iconRect);
+                    }
+
                 }
             }
         }
